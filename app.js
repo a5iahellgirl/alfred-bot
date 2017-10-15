@@ -1,4 +1,4 @@
-onst Discord = require('discord.js');
+const Discord = require('discord.js');
 const client = new Discord.Client();
 const token = require('./settings.json').token;
 const ddiff = require('return-deep-diff');
@@ -60,6 +60,7 @@ client.on('guildBanRemove',(guild, user)=>{
 // Client Events
 client.on('channelCreate', channel => {
   console.log(`A ${channel.type} channel by the name of ${channel.name} was created ${channel.createdAt}`);
+  client.channels.get(`358857029105745920`).send(`A channel was created.`);
 });
 
 client.on('channelDelete', channel =>{
@@ -67,21 +68,27 @@ client.on('channelDelete', channel =>{
   client.channels.get(`358857029105745920`).send(`A channel was deleted.`);
 });
 
-client.on('messagesDeleteBulk',message => {
-  client.channels.get(`358857029105745920`).send(`${messages.size} was deleted.`);
+client.on('messageDelete', message => {
+  console.log(`A message with the contents ${message.CleanContent} was deleted from ${message.channel}`);
 });
 
+client.on('messageDeleteBulk', messages => {
+  console.log(`${messages.size} was deleted`);
+});
 
 var prefix = ">"
 client.on('message', message => {
   let args = message.content.split(' ').slice(1);
   var argresult = args.join(' ');
+
+
   if (!message.content.startsWith(prefix)) return;
   if (message.author.bot) return;
 
   if (message.content.startsWith(prefix + 'purge')) {
-    let messagecount = parseInt(args[0]);
-    message.channel.fetchMessages({limit:messagecount}).then(messages => messages.channel.bulkDelete(messages));
+    console.log(args[1])
+    let messagecount = parseInt(args[1]);
+    message.channel.fetchMessages({limit:messagecount}).then(messages => message.channel.bulkDelete(messages));
   } else
 
   if (message.content.startsWith(prefix + 'send')) {
@@ -95,11 +102,16 @@ client.on('message', message => {
 
   if (message.content.startsWith(prefix + 'setstatus')) {
   client.user.setStatus(argresult);
-  } else
+  }
 
-  if (message.content.startsWith(prefix + 'Good morning, Alfred')) {
-      message.channel.send(`Good Morning, ${message.author}`);
-    }
   });
+
+//client.on('debug', e => {
+  //console.log(e);
+//});
+
+//client.on('warn', e => {
+  //console.log(e);
+//});
 
 client.login(token);
